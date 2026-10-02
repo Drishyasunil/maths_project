@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entropy-Based Analysis Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>Entropy-Based <span>Analysis</span></h1>
+            <p>A cybersecurity approach to detecting ransomware and malicious encrypted data through statistical analysis.</p>
+        </header>
+
+        <main class="dashboard">
+            <!-- Phase 1: Simulation -->
+            <section class="card glass">
+                <div class="card-header">
+                    <h2>Phase 1: Simulation</h2>
+                    <span class="badge" id="sim-badge">Ready</span>
+                </div>
+                <p>Run the simulation to generate a low-entropy plaintext file and a high-entropy AES-256 encrypted file. Watch how the Shannon Entropy formula easily distinguishes them.</p>
+                <button id="btn-simulate" class="btn primary">Run Simulation</button>
+                <div id="sim-results" class="results-container hidden">
+                    <div class="result-box">
+                        <h3 class="plain-text">Plaintext File</h3>
+                        <p>sample_plain.txt</p>
+                        <div class="metric">
+                            <span class="value" id="res-plain-entropy">--</span>
+                            <span class="label">Entropy</span>
+                        </div>
+                    </div>
+                    <div class="result-box">
+                        <h3 class="enc-text">Encrypted File</h3>
+                        <p>sample_encrypted.enc</p>
+                        <div class="metric">
+                            <span class="value" id="res-enc-entropy">--</span>
+                            <span class="label">Entropy</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Manual File Check -->
+            <section class="card glass">
+                <div class="card-header">
+                    <h2>Manual File Check</h2>
+                    <span class="badge" id="upload-badge">Ready</span>
+                </div>
+                <p>Upload <strong>any file type</strong> for an instant threat analysis. The engine uses Shannon Entropy, Magic Byte detection, header chunk analysis, and byte distribution to compute a <strong>Threat Probability %</strong>.</p>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: -10px;">
+                    Supported: TXT, PDF, DOCX, XLSX, ZIP, RAR, 7Z, JPG, PNG, GIF, BMP, MP3, MP4, WAV, EXE, DLL, ELF, HTML, XML, JSON, SQL, DOC, XLS, PPT, TIFF, FLAC, OGG, SH &amp; more.
+                </p>
+
+                <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; margin-top: 15px;">
+                    <input type="file" id="file-input" style="color: var(--text-muted); background: var(--glass-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--glass-border); flex: 1; min-width: 200px;">
+                    <button id="btn-upload" class="btn primary">Upload &amp; Analyze</button>
+                </div>
+
+                <div id="upload-results" class="results-container hidden" style="grid-template-columns: 1fr;">
+                    <div class="result-box" style="text-align: left;">
+                        <!-- header row -->
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 18px;">
+                            <div>
+                                <h3 id="res-filename" style="margin-bottom: 4px; color: var(--accent-primary);"></h3>
+                                <p id="res-filetype" style="font-size: 0.82rem; margin: 0; color: var(--text-muted);"></p>
+                            </div>
+                            <div id="res-verdict" style="font-size: 1rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; white-space: nowrap;"></div>
+                        </div>
+                        <!-- stats row -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px;">
+                            <div style="background: rgba(15,23,42,0.7); padding: 14px; border-radius: 10px; text-align: center;">
+                                <span style="display: block; font-size: 2rem; font-weight: 800; font-family: monospace;" id="res-entropy-val"></span>
+                                <span style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Shannon Entropy / 8.0</span>
+                            </div>
+                            <div style="background: rgba(15,23,42,0.7); padding: 14px; border-radius: 10px; text-align: center;">
+                                <span style="display: block; font-size: 2rem; font-weight: 800;" id="res-size-val"></span>
+                                <span style="font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">File Size</span>
+                            </div>
+                        </div>
+                        <!-- risk gauge -->
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 7px;">
+                                <span style="font-size: 0.85rem; color: var(--text-muted);">Threat Probability</span>
+                                <span style="font-weight: 800; font-size: 1.2rem;" id="res-risk-pct"></span>
+                            </div>
+                            <div style="background: rgba(15,23,42,0.8); border-radius: 999px; height: 18px; overflow: hidden; border: 1px solid var(--glass-border);">
+                                <div id="res-risk-bar" style="height: 100%; border-radius: 999px; width: 0%; transition: width 1s ease, background 0.5s ease;"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 0.72rem; color: var(--text-muted);">
+                                <span>0% — Safe</span><span>50% — Moderate</span><span>100% — Critical</span>
+                            </div>
+                        </div>
+                        <!-- reasons breakdown -->
+                        <div>
+                            <p style="font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Detection Factor Breakdown</p>
+                            <ul id="res-reasons" style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px;"></ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js?v=6"></script>
+</body>
+</html>
